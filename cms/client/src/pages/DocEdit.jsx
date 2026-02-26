@@ -20,6 +20,23 @@ export default function DocEdit() {
       .finally(() => setLoading(false));
   }, [id, slug, isNew]);
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      const res = await fetch(`/api/upload/${id}`, { method: 'POST', body: fd });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || '업로드 실패');
+      const img = `![${file.name}](${d.url})\n`;
+      setContent((c) => (c || '') + img);
+    } catch (err) {
+      alert(err.message);
+    }
+    e.target.value = '';
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -67,6 +84,12 @@ export default function DocEdit() {
           파일명: <input value={newSlug} onChange={(e) => setNewSlug(e.target.value)} placeholder="intro" />
         </p>
       )}
+      <p style={{ marginBottom: 8 }}>
+        <input type="file" accept="image/*" onChange={handleImageUpload} id="img-upload" style={{ display: 'none' }} />
+        <label htmlFor="img-upload">
+          <button type="button" onClick={() => document.getElementById('img-upload').click()}>이미지 업로드</button>
+        </label>
+      </p>
       <MarkdownEditor value={content} onChange={setContent} />
       <p style={{ marginTop: 16 }}>
         <button onClick={handleSave} disabled={saving}>
