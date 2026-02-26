@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "github-pages",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["-e", "require('http').createServer((req,res)=>{const fs=require('fs'),path=require('path'),fp=path.join('D:/workspace/restnfeel.github.io',req.url==='/'?'index.html':req.url);fs.readFile(fp,(e,d)=>{res.writeHead(e?404:200);res.end(e?'Not found':d)})}).listen(4000,()=>console.log('ok'))"],
+      "port": 4000
+    }
+  ]
+}
