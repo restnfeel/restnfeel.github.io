@@ -1,12 +1,35 @@
-* { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: #f8f9fa; }
-button, input, select, textarea {
-  font: inherit;
-  padding: 6px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  html { -webkit-tap-highlight-color: transparent; }
+  body {
+    @apply antialiased font-sans text-slate-800 bg-slate-50;
+    touch-action: manipulation;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
 }
-button { cursor: pointer; background: #0d6efd; color: #fff; border-color: #0d6efd; }
-button:hover { background: #0b5ed7; }
-button:disabled { opacity: 0.6; cursor: not-allowed; }
-a { color: #0d6efd; }
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+  }
+  .btn-primary { @apply btn bg-teal-600 hover:bg-teal-700 text-white focus-visible:ring-teal-500; }
+  .btn-secondary { @apply btn bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 focus-visible:ring-slate-400; }
+  .input {
+    @apply w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:border-transparent;
+  }
+  .card { @apply bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden; }
+  .skip-link {
+    @apply fixed z-[100] px-4 py-2 rounded-lg font-medium bg-teal-600 text-white;
+    left: -9999px;
+    top: 1rem;
+  }
+  .skip-link:focus {
+    left: 1rem;
+  }
+}

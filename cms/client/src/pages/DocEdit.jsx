@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import MarkdownEditor from '../components/MarkdownEditor';
 
 export default function DocEdit() {
   const { id, slug } = useParams();
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
   const isNew = slug === 'new';
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(!isNew);
@@ -71,31 +72,70 @@ export default function DocEdit() {
     }
   };
 
-  if (loading) return <p>로딩 중...</p>;
+  if (loading) {
+    return (
+      <div className="text-slate-500" role="status" aria-live="polite">
+        로딩 중…
+      </div>
+    );
+  }
 
   return (
     <div>
-      <p>
-        <Link to={`/courses/${id}`}>← {id}</Link>
-      </p>
-      <h2>문서: {isNew ? '새 문서' : slug}</h2>
+      <Link
+        to={`/courses/${id}`}
+        className="inline-block mb-6 text-slate-600 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded"
+      >
+        ← {id}
+      </Link>
+      <h2 className="text-2xl font-semibold text-slate-900 mb-6" style={{ textWrap: 'balance' }}>
+        {isNew ? '새 문서' : slug}
+      </h2>
       {isNew && (
-        <p>
-          파일명: <input value={newSlug} onChange={(e) => setNewSlug(e.target.value)} placeholder="intro" />
-        </p>
+        <div className="mb-6">
+          <label htmlFor="doc-slug" className="block text-sm font-medium text-slate-700 mb-1">
+            파일명
+          </label>
+          <input
+            id="doc-slug"
+            type="text"
+            name="slug"
+            autoComplete="off"
+            value={newSlug}
+            onChange={(e) => setNewSlug(e.target.value)}
+            placeholder="intro"
+            className="input max-w-xs"
+          />
+        </div>
       )}
-      <p style={{ marginBottom: 8 }}>
-        <input type="file" accept="image/*" onChange={handleImageUpload} id="img-upload" style={{ display: 'none' }} />
-        <label htmlFor="img-upload">
-          <button type="button" onClick={() => document.getElementById('img-upload').click()}>이미지 업로드</button>
-        </label>
-      </p>
-      <MarkdownEditor value={content} onChange={setContent} />
-      <p style={{ marginTop: 16 }}>
-        <button onClick={handleSave} disabled={saving}>
-          {saving ? '저장 중...' : '저장'}
+      <div className="mb-4 flex gap-3">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          aria-label="이미지 파일 선택"
+          className="hidden"
+        />
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="btn-secondary"
+        >
+          이미지 업로드
         </button>
-      </p>
+      </div>
+      <div className="card overflow-hidden mb-6">
+        <MarkdownEditor value={content} onChange={setContent} />
+      </div>
+      <button
+        type="button"
+        onClick={handleSave}
+        disabled={saving}
+        className="btn-primary disabled:opacity-60"
+      >
+        {saving ? '저장 중…' : '저장'}
+      </button>
     </div>
   );
 }

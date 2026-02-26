@@ -1,0 +1,8 @@
+{
+  "name": "restnfeel.github.io",
+  "private": true,
+  "scripts": {
+    "cms": "cd cms && npm run dev",
+    "cms:install": "cd cms && npm install && cd server && npm install && cd ../client && npm install"
+  }
+}

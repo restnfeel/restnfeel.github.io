@@ -20,11 +20,17 @@ export default function DeployButton() {
   };
 
   return (
-    <div style={{ marginBottom: 16 }}>
-      <button onClick={handleDeploy} disabled={loading}>
-        {loading ? '배포 중...' : '배포'}
+    <div className="flex items-center gap-3" role="status" aria-live="polite" aria-atomic="true">
+      {message && <span className="text-sm text-slate-600">{message}</span>}
+      <button
+        type="button"
+        onClick={handleDeploy}
+        disabled={loading}
+        aria-label={loading ? '배포 중' : 'Git에 커밋하고 푸시'}
+        className="btn-primary disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        {loading ? '배포 중…' : '배포'}
       </button>
-      {message && <span style={{ marginLeft: 12 }}>{message}</span>}
     </div>
   );
 }
