@@ -1,2 +1,5 @@
 # Worktrees (isolated branch workspaces)
 .worktrees/
+
+# Dependencies
+node_modules/
