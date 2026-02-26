@@ -77,6 +77,29 @@ export function createCoursesRouter(PROJECT_ROOT) {
     }
   });
 
+  // GET /api/courses/:id/metadata — course.json
+  router.get('/:id/metadata', async (req, res) => {
+    try {
+      const filePath = path.join(COURSES_DIR, req.params.id, 'course.json');
+      const raw = await fs.readFile(filePath, 'utf-8');
+      res.json(JSON.parse(raw));
+    } catch (err) {
+      if (err.code === 'ENOENT') return res.status(404).json({ error: 'Not found' });
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // PUT /api/courses/:id/metadata — course.json 저장
+  router.put('/:id/metadata', async (req, res) => {
+    try {
+      const filePath = path.join(COURSES_DIR, req.params.id, 'course.json');
+      await fs.writeFile(filePath, JSON.stringify(req.body, null, 2), 'utf-8');
+      res.json({ ok: true });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // POST /api/courses/:id/docs — 새 문서 생성
   router.post('/:id/docs', async (req, res) => {
     try {
