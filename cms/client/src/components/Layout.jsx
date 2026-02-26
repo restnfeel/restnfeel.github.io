@@ -41,8 +41,12 @@ export default function Layout({ children }) {
           </ul>
         </nav>
       </aside>
-      <main id="main" className="flex-1 overflow-auto scroll-mt-4">
-        <div className="p-8 max-w-4xl">
+      <main id="main" className="flex-1 flex flex-col min-h-0 overflow-auto scroll-mt-4">
+        <div
+          className={`p-8 flex-1 flex flex-col min-h-0 ${
+            /\/courses\/[^/]+\/docs\//.test(location.pathname) ? 'w-full max-w-none' : 'max-w-4xl'
+          }`}
+        >
           {children}
         </div>
       </main>

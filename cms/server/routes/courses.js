@@ -28,28 +28,42 @@ export function createCoursesRouter(PROJECT_ROOT) {
     }
   });
 
-  // GET /api/courses/:id/docs — 문서 목록
+  // GET /api/courses/:id/docs — 문서 목록 (docs/ 하위 .md, .mdx 재귀 스캔)
   router.get('/:id/docs', async (req, res) => {
     try {
       const docsDir = path.join(COURSES_DIR, req.params.id, 'docs');
-      const entries = await fs.readdir(docsDir, { withFileTypes: true });
-      const docs = entries
-        .filter((e) => e.isFile() && /\.mdx?$/i.test(e.name))
-        .map((e) => e.name.replace(/\.mdx?$/i, ''));
-      res.json(docs);
+      const collected = [];
+      async function scan(dir, prefix = '') {
+        const entries = await fs.readdir(dir, { withFileTypes: true });
+        for (const e of entries) {
+          const rel = prefix ? `${prefix}/${e.name}` : e.name;
+          if (e.isDirectory()) {
+            await scan(path.join(dir, e.name), rel);
+          } else if (e.isFile() && /\.mdx?$/i.test(e.name)) {
+            const slug = rel.replace(/\.mdx?$/i, '');
+            collected.push(slug);
+          }
+        }
+      }
+      await scan(docsDir);
+      collected.sort();
+      res.json(collected);
     } catch (err) {
       if (err.code === 'ENOENT') return res.json([]);
       res.status(500).json({ error: err.message });
     }
   });
 
-  // GET /api/courses/:id/docs/:slug — 문서 내용
-  router.get('/:id/docs/:slug', async (req, res) => {
+  // GET /api/courses/:id/docs/:slug — 문서 내용 (slug에 / 포함 가능)
+  router.get('/:id/docs/*', async (req, res) => {
     try {
-      const slug = req.params.slug;
+      const slug = (req.params[0] || req.params.slug || '').replace(/\/$/, '');
+      if (!slug) return res.status(400).json({ error: 'slug required' });
       const base = path.join(COURSES_DIR, req.params.id, 'docs');
+      const safeBase = path.resolve(base);
       for (const ext of ['.md', '.mdx']) {
-        const filePath = path.join(base, slug + ext);
+        const filePath = path.resolve(base, slug + ext);
+        if (!filePath.startsWith(safeBase)) return res.status(400).json({ error: 'Invalid path' });
         try {
           const content = await fs.readFile(filePath, 'utf-8');
           return res.json({ slug, content });

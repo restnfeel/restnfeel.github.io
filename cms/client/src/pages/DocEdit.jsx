@@ -81,10 +81,11 @@ export default function DocEdit() {
   }
 
   return (
-    <div>
+    <div className="flex flex-col flex-1 min-h-0">
+      <div className="shrink-0">
       <Link
         to={`/courses/${id}`}
-        className="inline-block mb-6 text-slate-600 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded"
+        className="inline-block mb-6 text-slate-600 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 rounded"
       >
         ← {id}
       </Link>
@@ -125,9 +126,11 @@ export default function DocEdit() {
           이미지 업로드
         </button>
       </div>
-      <div className="card overflow-hidden mb-6">
-        <MarkdownEditor value={content} onChange={setContent} />
       </div>
+      <div className="card overflow-hidden flex-1 min-h-[60vh] flex flex-col">
+        <MarkdownEditor value={content} onChange={setContent} className="flex-1 min-h-[500px]" />
+      </div>
+      <div className="shrink-0 pt-4">
       <button
         type="button"
         onClick={handleSave}
@@ -136,6 +139,7 @@ export default function DocEdit() {
       >
         {saving ? '저장 중…' : '저장'}
       </button>
+      </div>
     </div>
   );
 }
