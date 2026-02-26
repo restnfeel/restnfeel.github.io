@@ -1,0 +1,86 @@
+/**
+ * 바이브코딩 강의 공통 테마
+ * 메인 인덱스 페이지(restnfeel.github.io) 디자인과 통일성을 유지합니다.
+ */
+
+:root {
+  --ifm-color-primary: #7c3aed;
+  --ifm-color-primary-dark: #6d28d9;
+  --ifm-color-primary-darker: #5b21b6;
+  --ifm-color-primary-darkest: #4c1d95;
+  --ifm-color-primary-light: #8b5cf6;
+  --ifm-color-primary-lighter: #a78bfa;
+  --ifm-color-primary-lightest: #c4b5fd;
+  --ifm-code-font-size: 95%;
+  --ifm-background-color: #060A14;
+  --ifm-background-surface-color: #0C1628;
+  --ifm-navbar-background-color: #0C1628;
+  --ifm-footer-background-color: #0C1628;
+  --ifm-toc-border-color: rgba(148, 163, 184, 0.1);
+  --ifm-hr-border-color: rgba(148, 163, 184, 0.1);
+  --docusaurus-highlighted-code-line-bg: rgba(124, 58, 237, 0.1);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #8b5cf6;
+  --ifm-color-primary-dark: #7c3aed;
+  --ifm-background-color: #060A14;
+  --ifm-background-surface-color: #0C1628;
+  --ifm-navbar-background-color: #0C1628;
+  --ifm-footer-background-color: #0C1628;
+  --ifm-color-content: #F1F5F9;
+  --ifm-color-content-secondary: #94A3B8;
+  --docusaurus-highlighted-code-line-bg: rgba(124, 58, 237, 0.15);
+}
+
+/* 네비게이션 바 */
+.navbar {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.07);
+  box-shadow: none;
+}
+
+.navbar__brand {
+  font-weight: 700;
+}
+
+/* 사이드바 */
+.menu__link--active {
+  background: rgba(124, 58, 237, 0.12);
+}
+
+/* 코드 블록 */
+.prism-code {
+  background: #0F1B2D !important;
+  border: 1px solid rgba(148, 163, 184, 0.07);
+}
+
+/* 인라인 코드 */
+code {
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: 4px;
+}
+
+/* 푸터 */
+.footer {
+  border-top: 1px solid rgba(148, 163, 184, 0.07);
+}
+
+/* 문서 콘텐츠 */
+.markdown h1,
+.markdown h2,
+.markdown h3 {
+  color: #F1F5F9;
+}
+
+.markdown p {
+  color: #94A3B8;
+  line-height: 1.8;
+}
+
+/* 콜아웃/인용구 */
+blockquote {
+  border-left: 3px solid #7c3aed;
+  background: rgba(124, 58, 237, 0.05);
+  border-radius: 0 8px 8px 0;
+}

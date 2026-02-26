@@ -1,0 +1,69 @@
+name: Deploy — 바이브 코딩 가이드
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'courses/effiency/**'
+      - 'shared/docusaurus-base/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # npm 캐시 (package.json 해시 기반)
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-docusaurus-${{ hashFiles('shared/docusaurus-base/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-docusaurus-
+
+      - name: Prepare build directory
+        run: |
+          # shared 베이스 복사
+          cp -r shared/docusaurus-base /tmp/course-build
+
+          # docs 초기화 후 강의 콘텐츠 복사
+          rm -rf /tmp/course-build/docs
+          mkdir -p /tmp/course-build/docs
+          if [ -d "courses/effiency/docs" ] && [ "$(ls -A courses/effiency/docs 2>/dev/null)" ]; then
+            cp -r courses/effiency/docs/. /tmp/course-build/docs/
+          fi
+
+          # static 복사 (이미지 등)
+          if [ -d "courses/effiency/static" ] && [ "$(ls -A courses/effiency/static 2>/dev/null)" ]; then
+            mkdir -p /tmp/course-build/static
+            cp -r courses/effiency/static/. /tmp/course-build/static/
+          fi
+
+          # course.json 주입 (docusaurus.config.js 에서 읽음)
+          cp courses/effiency/course.json /tmp/course-build/course.json
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: /tmp/course-build
+
+      - name: Build Docusaurus
+        run: npm run build
+        working-directory: /tmp/course-build
+
+      - name: Deploy to vibe_coding_effiency
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          personal_token: ${{ secrets.DEPLOY_TOKEN }}
+          external_repository: restnfeel/vibe_coding_effiency
+          publish_branch: gh-pages
+          publish_dir: /tmp/course-build/build
+          force_orphan: true
+          commit_message: "chore: auto-deploy from content-hub [${{ github.sha }}]"

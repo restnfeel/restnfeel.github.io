@@ -1,0 +1,37 @@
+name: Update — 메인 인덱스 페이지
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index/courses.json'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate index.html
+        run: node scripts/generate-index.js
+
+      - name: Commit & push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if git diff --staged --quiet; then
+            echo "index.html 변경 없음, 스킵"
+          else
+            git commit -m "chore: auto-regenerate index.html [skip ci]"
+            git push
+          fi

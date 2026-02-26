@@ -1,13 +1,156 @@
-<!DOCTYPE html>
+#!/usr/bin/env node
+/**
+ * generate-index.js
+ *
+ * index/courses.json 을 읽어 index.html 을 자동 생성합니다.
+ * 강의 추가·수정은 index/courses.json 만 편집하세요.
+ *
+ * 사용법:
+ *   node scripts/generate-index.js
+ */
+
+'use strict';
+
+const fs   = require('fs');
+const path = require('path');
+
+const ROOT        = path.join(__dirname, '..');
+const COURSES_JSON = path.join(ROOT, 'index', 'courses.json');
+const OUTPUT_HTML  = path.join(ROOT, 'index.html');
+
+// ── 데이터 로드 ────────────────────────────────────────────────────────────────
+const { site, courses } = JSON.parse(fs.readFileSync(COURSES_JSON, 'utf8'));
+
+// ── 테마 팔레트 (theme: "a" | "b" | "c" | "d" | ...) ─────────────────────────
+const THEMES = {
+  a: {
+    barGrad:      'linear-gradient(90deg, #7C3AED, #3B82F6)',
+    hoverShadow:  'rgba(124, 58, 237, 0.15)',
+    ctaColor:     '#93C5FD',
+    ctaBorder:    'rgba(124,58,237,0.28)',
+    ctaBg:        'rgba(124,58,237,0.18), rgba(59,130,246,0.18)',
+    ctaBgHover:   'rgba(124,58,237,0.32), rgba(59,130,246,0.32)',
+    ctaBorderHover: 'rgba(124,58,237,0.45)',
+  },
+  b: {
+    barGrad:      'linear-gradient(90deg, #0EA5E9, #22D3EE)',
+    hoverShadow:  'rgba(14, 165, 233, 0.12)',
+    ctaColor:     '#67E8F9',
+    ctaBorder:    'rgba(14,165,233,0.28)',
+    ctaBg:        'rgba(14,165,233,0.18), rgba(34,211,238,0.18)',
+    ctaBgHover:   'rgba(14,165,233,0.32), rgba(34,211,238,0.32)',
+    ctaBorderHover: 'rgba(14,165,233,0.45)',
+  },
+  c: {
+    barGrad:      'linear-gradient(90deg, #10B981, #34D399)',
+    hoverShadow:  'rgba(16, 185, 129, 0.12)',
+    ctaColor:     '#6EE7B7',
+    ctaBorder:    'rgba(16,185,129,0.28)',
+    ctaBg:        'rgba(16,185,129,0.18), rgba(52,211,153,0.18)',
+    ctaBgHover:   'rgba(16,185,129,0.32), rgba(52,211,153,0.32)',
+    ctaBorderHover: 'rgba(16,185,129,0.45)',
+  },
+  d: {
+    barGrad:      'linear-gradient(90deg, #F59E0B, #FBBF24)',
+    hoverShadow:  'rgba(245, 158, 11, 0.12)',
+    ctaColor:     '#FDE68A',
+    ctaBorder:    'rgba(245,158,11,0.28)',
+    ctaBg:        'rgba(245,158,11,0.18), rgba(251,191,36,0.18)',
+    ctaBgHover:   'rgba(245,158,11,0.32), rgba(251,191,36,0.32)',
+    ctaBorderHover: 'rgba(245,158,11,0.45)',
+  },
+};
+
+// ── 헬퍼 ──────────────────────────────────────────────────────────────────────
+function getTheme(key) {
+  return THEMES[key] || THEMES.a;
+}
+
+const activeCourses = courses.filter(c => c.status === 'active');
+
+// 사용된 테마에 대한 CSS 동적 생성
+const usedThemes = [...new Set(activeCourses.map(c => c.theme || 'a'))];
+
+function buildThemeCss(key) {
+  const t = getTheme(key);
+  return `
+    .card-${key}::before { background: ${t.barGrad}; }
+    .card-${key}:hover    { box-shadow: 0 24px 64px ${t.hoverShadow}; }
+    .card-${key} .cta {
+      background: linear-gradient(135deg, ${t.ctaBg});
+      color: ${t.ctaColor};
+      border: 1px solid ${t.ctaBorder};
+    }
+    .card-${key} .cta:hover {
+      background: linear-gradient(135deg, ${t.ctaBgHover});
+      border-color: ${t.ctaBorderHover};
+    }`;
+}
+
+const themeCss = usedThemes.map(buildThemeCss).join('\n');
+
+// 카드 애니메이션 (각 테마의 첫 번째 카드 기준)
+const cardAnimCss = activeCourses.map((c, i) => {
+  const delay = (0.48 + i * 0.07).toFixed(2);
+  return `    .grid > .card-${c.theme || 'a'}:nth-child(${i + 1}) { animation: fadeUp 0.55s ${delay}s ease both; }`;
+}).join('\n');
+
+// ── 카드 렌더 ─────────────────────────────────────────────────────────────────
+function renderCard(course) {
+  const themeKey = course.theme || 'a';
+  const descHtml = course.description.split('\n').join('<br />');
+  const tagsHtml = course.tags
+    .map(tag => `<span class="tag">${escHtml(tag)}</span>`)
+    .join('\n            ');
+
+  return `
+        <!-- ${escHtml(course.title)} -->
+        <a href="${course.url}" target="_blank" rel="noopener" class="card card-${themeKey}">
+          <div class="card-watermark" aria-hidden="true">${course.chapters}</div>
+          <div class="card-top">
+            <div class="badges">
+              <span class="badge b-free">FREE</span>
+              <span class="badge b-level">${escHtml(course.level)}</span>
+            </div>
+            <span class="card-meta">${course.chapters} chapters</span>
+          </div>
+          <h2 class="card-title">${escHtml(course.title)}</h2>
+          <p class="card-desc">
+            ${descHtml}
+          </p>
+          <div class="tags">
+            ${tagsHtml}
+          </div>
+          <span class="cta">
+            강의 시작하기
+            <svg class="cta-ico" width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M1 6.5H12M12 6.5L7 1.5M12 6.5L7 11.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>`;
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+const cardsHtml = activeCourses.map(renderCard).join('\n');
+
+// ── HTML 생성 ─────────────────────────────────────────────────────────────────
+const html = `<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AI와 함께하는 코딩의 새로운 패러다임" />
-  <meta property="og:title" content="디지로그랩스 × 바이브코딩" />
-  <meta property="og:description" content="AI와 함께하는 코딩의 새로운 패러다임" />
+  <meta name="description" content="${escHtml(site.description)}" />
+  <meta property="og:title" content="${escHtml(site.title)}" />
+  <meta property="og:description" content="${escHtml(site.description)}" />
   <meta property="og:type" content="website" />
-  <title>디지로그랩스 × 바이브코딩</title>
+  <title>${escHtml(site.title)}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
@@ -235,30 +378,7 @@
     }
     .card:hover { transform: translateY(-5px); border-color: var(--border-hi); }
     .card:hover::before { opacity: 1; }
-    
-    .card-a::before { background: linear-gradient(90deg, #7C3AED, #3B82F6); }
-    .card-a:hover    { box-shadow: 0 24px 64px rgba(124, 58, 237, 0.15); }
-    .card-a .cta {
-      background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(59,130,246,0.18));
-      color: #93C5FD;
-      border: 1px solid rgba(124,58,237,0.28);
-    }
-    .card-a .cta:hover {
-      background: linear-gradient(135deg, rgba(124,58,237,0.32), rgba(59,130,246,0.32));
-      border-color: rgba(124,58,237,0.45);
-    }
-
-    .card-b::before { background: linear-gradient(90deg, #0EA5E9, #22D3EE); }
-    .card-b:hover    { box-shadow: 0 24px 64px rgba(14, 165, 233, 0.12); }
-    .card-b .cta {
-      background: linear-gradient(135deg, rgba(14,165,233,0.18), rgba(34,211,238,0.18));
-      color: #67E8F9;
-      border: 1px solid rgba(14,165,233,0.28);
-    }
-    .card-b .cta:hover {
-      background: linear-gradient(135deg, rgba(14,165,233,0.32), rgba(34,211,238,0.32));
-      border-color: rgba(14,165,233,0.45);
-    }
+    ${themeCss}
 
     /* watermark */
     .card-watermark {
@@ -397,8 +517,7 @@
       from { opacity: 0; transform: translateY(18px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .grid > .card-a:nth-child(1) { animation: fadeUp 0.55s 0.48s ease both; }
-    .grid > .card-b:nth-child(2) { animation: fadeUp 0.55s 0.55s ease both; }
+${cardAnimCss}
   </style>
 </head>
 <body>
@@ -409,8 +528,8 @@
 
     <!-- NAV -->
     <nav>
-      <a href="https://digiloglabs.com" target="_blank" rel="noopener" class="nav-brand">
-        Digilog Labs
+      <a href="${site.brandUrl}" target="_blank" rel="noopener" class="nav-brand">
+        ${escHtml(site.brand)}
       </a>
       <div class="nav-live">
         <div class="live-dot"></div>
@@ -441,64 +560,7 @@
     <section class="courses" aria-label="강의 목록">
       <div class="sec-label">Courses — 강의 목록</div>
       <div class="grid">
-
-        <!-- 바이브 코딩 베이직 -->
-        <a href="https://restnfeel.github.io/vibe_coding_basic/" target="_blank" rel="noopener" class="card card-a">
-          <div class="card-watermark" aria-hidden="true">6</div>
-          <div class="card-top">
-            <div class="badges">
-              <span class="badge b-free">FREE</span>
-              <span class="badge b-level">입문</span>
-            </div>
-            <span class="card-meta">6 chapters</span>
-          </div>
-          <h2 class="card-title">바이브 코딩 베이직</h2>
-          <p class="card-desc">
-            코딩 지식 없이 시작하는 AI 개발 입문.<br />Cursor IDE로 첫날부터 실제 앱을 만들며<br />AI 코딩의 기초를 차근차근 익힙니다.
-          </p>
-          <div class="tags">
-            <span class="tag">Cursor IDE</span>
-            <span class="tag">AI 코드 생성</span>
-            <span class="tag">프롬프트 기초</span>
-            <span class="tag">Todo 앱 실습</span>
-            <span class="tag">비개발자 환영</span>
-          </div>
-          <span class="cta">
-            강의 시작하기
-            <svg class="cta-ico" width="13" height="13" viewBox="0 0 13 13" fill="none">
-              <path d="M1 6.5H12M12 6.5L7 1.5M12 6.5L7 11.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-        </a>
-
-        <!-- 바이브 코딩 가이드 -->
-        <a href="https://restnfeel.github.io/vibe_coding_effiency/" target="_blank" rel="noopener" class="card card-b">
-          <div class="card-watermark" aria-hidden="true">7</div>
-          <div class="card-top">
-            <div class="badges">
-              <span class="badge b-free">FREE</span>
-              <span class="badge b-level">중급</span>
-            </div>
-            <span class="card-meta">7 chapters</span>
-          </div>
-          <h2 class="card-title">바이브 코딩 가이드</h2>
-          <p class="card-desc">
-            AI 개발 비용 80% 이상 절감하는 전략적 접근법.<br />Claude, Gemini, 로컬 LLM을 목적에 맞게 조합해<br />품질과 속도, 비용을 모두 잡습니다.
-          </p>
-          <div class="tags">
-            <span class="tag">비용 최적화</span>
-            <span class="tag">Claude · Gemini · vLLM</span>
-            <span class="tag">모델 선택 전략</span>
-            <span class="tag">프롬프트 템플릿</span>
-            <span class="tag">80%+ 비용 절감</span>
-          </div>
-          <span class="cta">
-            강의 시작하기
-            <svg class="cta-ico" width="13" height="13" viewBox="0 0 13 13" fill="none">
-              <path d="M1 6.5H12M12 6.5L7 1.5M12 6.5L7 11.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-        </a>
+${cardsHtml}
       </div>
     </section>
 
@@ -516,8 +578,8 @@
     <!-- FOOTER -->
     <footer>
       <div class="footer-row">
-        <span class="footer-copy">© 2025 디지로그랩스 주식회사</span>
-        <a href="https://digiloglabs.com" target="_blank" rel="noopener" class="footer-link">
+        <span class="footer-copy">${escHtml(site.copyright)}</span>
+        <a href="${site.brandUrl}" target="_blank" rel="noopener" class="footer-link">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
             <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.1"/>
             <path d="M6 1C4.7 2.7 4 4.3 4 6s.7 3.3 2 5M6 1c1.3 1.7 2 3.3 2 5s-.7 3.3-2 5M1 6h10" stroke="currentColor" stroke-width="1.1"/>
@@ -531,3 +593,7 @@
 
 </body>
 </html>
+`;
+
+fs.writeFileSync(OUTPUT_HTML, html, 'utf8');
+console.log(`✅  index.html 생성 완료 (강의 수: ${activeCourses.length})`);
