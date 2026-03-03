@@ -30,6 +30,18 @@
       "theme": "b",
       "tags": ["비용 최적화", "Claude · Gemini · vLLM", "모델 선택 전략", "프롬프트 템플릿", "80%+ 비용 절감"],
       "status": "active"
+    },
+    {
+      "id": "harness",
+      "repo": "vibe_coding_harness",
+      "url": "https://restnfeel.github.io/vibe_coding_harness/",
+      "title": "AI Harness 를 이용한 바이브 코딩 가이드",
+      "description": "superpowers 스킬과 spec kit을 이용한 AI 기반 개발 워크플로우.\nSpec Kit으로 요구사항·설계를 정의하고,\nHarness 기법으로 실전 프로젝트에서 최대 효율을 구현합니다.",
+      "level": "중급",
+      "chapters": 0,
+      "theme": "c",
+      "tags": ["Spec Kit", "Superpowers 스킬", "Harness 기법", "AI 워크플로우", "DDD Harness"],
+      "status": "active"
     }
   ]
 }

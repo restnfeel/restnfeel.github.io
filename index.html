@@ -260,6 +260,18 @@
       border-color: rgba(14,165,233,0.45);
     }
 
+    .card-c::before { background: linear-gradient(90deg, #10B981, #34D399); }
+    .card-c:hover    { box-shadow: 0 24px 64px rgba(16, 185, 129, 0.12); }
+    .card-c .cta {
+      background: linear-gradient(135deg, rgba(16,185,129,0.18), rgba(52,211,153,0.18));
+      color: #6EE7B7;
+      border: 1px solid rgba(16,185,129,0.28);
+    }
+    .card-c .cta:hover {
+      background: linear-gradient(135deg, rgba(16,185,129,0.32), rgba(52,211,153,0.32));
+      border-color: rgba(16,185,129,0.45);
+    }
+
     /* watermark */
     .card-watermark {
       position: absolute;
@@ -399,6 +411,7 @@
     }
     .grid > .card-a:nth-child(1) { animation: fadeUp 0.55s 0.48s ease both; }
     .grid > .card-b:nth-child(2) { animation: fadeUp 0.55s 0.55s ease both; }
+    .grid > .card-c:nth-child(3) { animation: fadeUp 0.55s 0.62s ease both; }
   </style>
 </head>
 <body>
@@ -491,6 +504,35 @@
             <span class="tag">모델 선택 전략</span>
             <span class="tag">프롬프트 템플릿</span>
             <span class="tag">80%+ 비용 절감</span>
+          </div>
+          <span class="cta">
+            강의 시작하기
+            <svg class="cta-ico" width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M1 6.5H12M12 6.5L7 1.5M12 6.5L7 11.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <!-- AI Harness 를 이용한 바이브 코딩 가이드 -->
+        <a href="https://restnfeel.github.io/vibe_coding_harness/" target="_blank" rel="noopener" class="card card-c">
+          <div class="card-watermark" aria-hidden="true">0</div>
+          <div class="card-top">
+            <div class="badges">
+              <span class="badge b-free">FREE</span>
+              <span class="badge b-level">중급</span>
+            </div>
+            <span class="card-meta">0 chapters</span>
+          </div>
+          <h2 class="card-title">AI Harness 를 이용한 바이브 코딩 가이드</h2>
+          <p class="card-desc">
+            superpowers 스킬과 spec kit을 이용한 AI 기반 개발 워크플로우.<br />Spec Kit으로 요구사항·설계를 정의하고,<br />Harness 기법으로 실전 프로젝트에서 최대 효율을 구현합니다.
+          </p>
+          <div class="tags">
+            <span class="tag">Spec Kit</span>
+            <span class="tag">Superpowers 스킬</span>
+            <span class="tag">Harness 기법</span>
+            <span class="tag">AI 워크플로우</span>
+            <span class="tag">DDD Harness</span>
           </div>
           <span class="cta">
             강의 시작하기
