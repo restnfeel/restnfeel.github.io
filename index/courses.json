@@ -42,6 +42,18 @@
       "theme": "c",
       "tags": ["Spec Kit", "Superpowers 스킬", "Harness 기법", "AI 워크플로우", "DDD Harness"],
       "status": "active"
+    },
+    {
+      "id": "openclaw",
+      "repo": "vibe_coding_openclaw",
+      "url": "https://restnfeel.github.io/vibe_coding_openclaw/",
+      "title": "OpenClaw 실전 가이드",
+      "description": "AI 에이전트 게이트웨이 OpenClaw 활용법.\nSkills 시스템을 특화 학습하여\n나만의 AI 에이전트를 만들어 봅니다.",
+      "level": "중급",
+      "chapters": 8,
+      "theme": "d",
+      "tags": ["OpenClaw", "AI 에이전트", "Skills 시스템", "CloudType 배포", "채널 연동"],
+      "status": "active"
     }
   ]
 }
